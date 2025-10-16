@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "5005:5000"
+    depends_on:
+      - db
+      - notificaciones
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: usuarios
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  notificaciones:
+    image: notificaciones:1.0
+    ports:
+      - "5001:5000"
+
