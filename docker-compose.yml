@@ -6,6 +6,9 @@ services:
     depends_on:
       - db
       - notificaciones
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/usuarios
+
 
   db:
     image: postgres:15
@@ -14,7 +17,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   notificaciones:
     image: notificaciones:1.0

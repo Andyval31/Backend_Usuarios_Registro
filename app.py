@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 import logging
 import os
 import requests
+from flask_cors import CORS
+CORS(app)
+
 
 
 logging.basicConfig(level=logging.DEBUG)
