@@ -1,6 +1,22 @@
-venv/
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Django
 db.sqlite3
+media/
+staticfiles/
+
+# Entornos
+venv/
+.venv/
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Variables de entorno
 .env
 

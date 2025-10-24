@@ -1,0 +1,14 @@
+# Framework principal
+Django>=3.2,<6.0
+
+# Django REST Framework para APIs
+djangorestframework
+
+# Driver de PostgreSQL
+psycopg2-binary
+
+# Servidor WSGI para producción
+gunicorn
+
+# Cliente HTTP para comunicarte con otros microservicios
+requests
