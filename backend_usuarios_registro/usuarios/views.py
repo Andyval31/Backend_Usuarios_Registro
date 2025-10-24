@@ -1,48 +1,30 @@
-import json, requests
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.db import IntegrityError
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Usuario
+from .serializers import UsuarioSerializer
+import requests
 
-@csrf_exempt
-def usuarios_view(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-        except json.JSONDecodeError:
-            return HttpResponseBadRequest("JSON inválido")
+class UsuarioListCreate(APIView):
+    def get(self, request):
+        usuarios = Usuario.objects.all()
+        serializer = UsuarioSerializer(usuarios, many=True)
+        return Response(serializer.data)
 
-        nombre = data.get('nombre')
-        email = data.get('email')
+    def post(self, request):
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            usuario = serializer.save()
 
-        if not nombre or not email:
-            return HttpResponseBadRequest("Faltan campos obligatorios: nombre y email")
+            # Notificación
+            try:
+                mensaje = {
+                    "email": usuario.email,
+                    "mensaje": f"Usuario {usuario.nombre} creado correctamente"
+                }
+                requests.post("http://notificaciones:5000/notify", json=mensaje)
+            except Exception as e:
+                print(f"Error al enviar notificación: {e}")
 
-        try:
-            usuario = Usuario.objects.create(nombre=nombre, email=email)
-        except IntegrityError:
-            return JsonResponse(
-                {'error': f'El email {email} ya está registrado'},
-                status=400
-            )
-
-        # Enviar notificación al microservicio Flask
-        mensaje = {
-            'mensaje': f"Usuario {usuario.nombre} creado correctamente",
-            'email': usuario.email
-        }
-        try:
-            requests.post('http://notificaciones:5000/notificaciones', json=mensaje, timeout=3)
-        except Exception as e:
-            print(f"Error al enviar notificación: {e}")
-
-        return JsonResponse(
-            {'mensaje': 'Usuario creado correctamente', 'id': usuario.id},
-            status=201
-        )
-
-    elif request.method == 'GET':
-        usuarios = list(Usuario.objects.values("id", "nombre", "email"))
-        return JsonResponse(usuarios, safe=False)
-
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+            return Response({"mensaje": "Usuario creado correctamente"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
