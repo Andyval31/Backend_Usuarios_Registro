@@ -12,3 +12,6 @@ gunicorn
 
 # Cliente HTTP para comunicarte con otros microservicios
 requests
+
+# Middleware para habilitar CORS
+django-cors-headers
