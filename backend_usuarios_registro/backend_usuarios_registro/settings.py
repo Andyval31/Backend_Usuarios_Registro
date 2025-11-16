@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-$8rhj&1oiu#xhq_olzui8wmoa$^&vqebs!02c&zeb=9+^2u+d)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', "backend", "frontend", "notificaciones", "localhost"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,14 +43,12 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
-
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -79,19 +78,19 @@ WSGI_APPLICATION = 'backend_usuarios_registro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-import os
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_DB', 'usuarios'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': 'db',
+        'HOST': os.environ.get('DB_HOST'),
         'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
 }
-
 
 
 # Password validation
@@ -119,11 +118,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'es'
 TIME_ZONE = 'America/Montevideo'
 
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -136,4 +132,52 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# =============================================================================
+# CONFIGURACIÓN DE CORS - MODIFICADO PARA SEGURIDAD
+# =============================================================================
+
+# Permitir orígenes específicos (más seguro que CORS_ALLOW_ALL_ORIGINS)
+#CORS_ALLOWED_ORIGINS = [
+#    "https://app.labinfraferreiravaldez.cloud-ip.cc",
+#    "https://6wrbswc1ua.execute-api.us-east-1.amazonaws.com",
+#]
+
+# Métodos HTTP permitidos
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Headers permitidos
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Permitir credenciales (cookies, auth headers)
+CORS_ALLOW_CREDENTIALS = True
+
+# Deshabilitar protección CSRF para API (común en APIs REST)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://app.labinfraferreiravaldez.cloud-ip.cc",
+    "https://6wrbswc1ua.execute-api.us-east-1.amazonaws.com",
+]
+
 CORS_ALLOW_ALL_ORIGINS = True
